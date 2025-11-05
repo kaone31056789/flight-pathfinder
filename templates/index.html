@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✈️ Flight Pathfinder - Advanced Route Optimization</title>
+    
+    <!-- Maplibre GL CSS (Free Open Source) -->
+    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" />
+    
+    <!-- Our Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<body>
+    <!-- Animated Background with Clouds -->
+    <div class="sky">
+        <div class="cloud cloud1"></div>
+        <div class="cloud cloud2"></div>
+        <div class="cloud cloud3"></div>
+        <div class="cloud cloud4"></div>
+        <div class="cloud cloud5"></div>
+    </div>
+
+    <!-- Flying planes animation -->
+    <div class="plane-container">
+        <div class="plane plane-1">✈️</div>
+        <div class="plane plane-2">🛩️</div>
+        <div class="plane plane-3">✈️</div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="title">
+                    <span class="icon">✈️</span>
+                    Flight Pathfinder
+                    <span class="version">v2.0</span>
+                </h1>
+                <p class="subtitle">Advanced Graph Algorithms for Optimal Route Planning</p>
+                <div class="tech-stack">
+                    <span class="tech-badge">C++ Core</span>
+                    <span class="tech-badge">Dijkstra</span>
+                    <span class="tech-badge">A*</span>
+                    <span class="tech-badge">BFS</span>
+                    <span class="tech-badge">DFS</span>
+                    <span class="tech-badge">Python + Flask</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Grid -->
+        <div class="main-grid">
+            <!-- Left Panel - Controls -->
+            <div class="panel control-panel">
+                <div class="panel-header">
+                    <h2>🎯 Route Configuration</h2>
+                </div>
+                
+                <div class="form-section">
+                    <div class="form-group">
+                        <label for="source">
+                            <span class="label-icon">🛫</span>
+                            Source Airport
+                        </label>
+                        <select id="source" class="select-field">
+                            <option value="">Select source...</option>
+                        </select>
+                        <div class="airport-info" id="sourceInfo"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="destination">
+                            <span class="label-icon">🛬</span>
+                            Destination Airport
+                        </label>
+                        <select id="destination" class="select-field">
+                            <option value="">Select destination...</option>
+                        </select>
+                        <div class="airport-info" id="destInfo"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="algorithm">
+                            <span class="label-icon">🧮</span>
+                            Algorithm
+                        </label>
+                        <select id="algorithm" class="select-field">
+                            <option value="dijkstra">Dijkstra's Algorithm</option>
+                            <option value="astar">A* Search</option>
+                            <option value="bfs">Breadth-First Search</option>
+                            <option value="dfs">Depth-First Search</option>
+                        </select>
+                        <div class="algorithm-info" id="algoInfo">
+                            <small>Optimal weighted pathfinding - O((V+E) log V)</small>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="metric">
+                            <span class="label-icon">📏</span>
+                            Optimization Metric
+                        </label>
+                        <select id="metric" class="select-field">
+                            <option value="distance">Distance (km)</option>
+                            <option value="time">Flight Time (min)</option>
+                        </select>
+                    </div>
+
+                    <button id="findPathBtn" class="btn-primary">
+                        <span class="btn-icon">🔍</span>
+                        Find Optimal Route
+                    </button>
+                </div>
+
+                <!-- Statistics Card -->
+                <div class="stats-card">
+                    <h3>📊 Network Statistics</h3>
+                    <div class="stat-row">
+                        <span>Airports:</span>
+                        <strong id="totalAirports">-</strong>
+                    </div>
+                    <div class="stat-row">
+                        <span>Flights:</span>
+                        <strong id="totalFlights">-</strong>
+                    </div>
+                    <div class="stat-row">
+                        <span>Avg Connections:</span>
+                        <strong id="avgConnections">-</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel - Results -->
+            <div class="panel results-panel">
+                <div class="panel-header">
+                    <h2>📍 Route Visualization</h2>
+                </div>
+
+                <!-- Loading State -->
+                <div id="loading" class="loading hidden">
+                    <div class="loading-spinner"></div>
+                    <p>Calculating optimal route...</p>
+                </div>
+
+                <!-- Welcome State -->
+                <div id="welcome" class="welcome-state">
+                    <div class="welcome-icon">🗺️</div>
+                    <h3>Ready to Find Your Route</h3>
+                    <p>Select source and destination airports to begin pathfinding</p>
+                    <div class="feature-grid">
+                        <div class="feature">
+                            <span class="feature-icon">⚡</span>
+                            <span>Fast Algorithms</span>
+                        </div>
+                        <div class="feature">
+                            <span class="feature-icon">🎯</span>
+                            <span>Optimal Paths</span>
+                        </div>
+                        <div class="feature">
+                            <span class="feature-icon">📊</span>
+                            <span>Real-Time Analysis</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Results Container -->
+                <div id="results" class="results-container hidden">
+                    <!-- Path Display -->
+                    <div class="path-display">
+                        <div class="path-header">
+                            <h3>✅ Route Found</h3>
+                            <span class="algorithm-badge" id="algorithmUsed"></span>
+                        </div>
+                        <div class="path-route" id="pathRoute"></div>
+                    </div>
+
+                    <!-- Metrics Grid -->
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-icon">📏</div>
+                            <div class="metric-value" id="totalDistance">-</div>
+                            <div class="metric-label">Total Distance</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon">⏱️</div>
+                            <div class="metric-value" id="totalTime">-</div>
+                            <div class="metric-label">Flight Time</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon">🔢</div>
+                            <div class="metric-value" id="totalHops">-</div>
+                            <div class="metric-label">Total Hops</div>
+                        </div>
+                    </div>
+
+                    <!-- Detailed Segments -->
+                    <div class="segments-container">
+                        <h3>🗺️ Detailed Route</h3>
+                        <div id="segments" class="segments-list"></div>
+                    </div>
+
+                    <!-- Curved Route Map (Embedded) -->
+                    <div class="curved-map-section">
+                        <div class="curved-map-header">
+                            <h3>🌐 Realistic Curved Route Map</h3>
+                            <button id="toggleMapBtn" class="btn-toggle">
+                                <span class="btn-icon">▼</span>
+                                Show Map
+                            </button>
+                        </div>
+                        <div id="curvedMapContainer" class="curved-map-container hidden">
+                            <div class="map-loader hidden" id="mapLoader">
+                                <div class="loading-spinner"></div>
+                                <p>Loading curved route map...</p>
+                            </div>
+                            <iframe id="curvedMapFrame" class="curved-map-iframe"></iframe>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Error State -->
+                <div id="error" class="error-state hidden">
+                    <div class="error-icon">⚠️</div>
+                    <h3>Error Finding Route</h3>
+                    <p id="errorMessage"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Made with ❤️ for ADSA Semester 3 Project</p>
+            <p class="footer-tech">
+                <span>⚡ C++ Algorithm Core</span>
+                <span>•</span>
+                <span>🐍 Python Flask Backend</span>
+                <span>•</span>
+                <span>📊 Graph Algorithms</span>
+                <span>•</span>
+                <span>🎨 Advanced CSS Animations</span>
+            </p>
+        </footer>
+    </div>
+
+    <!-- Maplibre GL JS (Free Open Source) -->
+    <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+    
+    <!-- Our Custom JS -->
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
